@@ -256,9 +256,7 @@ class Runtime:
         Threading: SAFE. May be called on any thread.
         """
         session_info = self._session_mgr.get_active_session_info(session_id)
-        if session_info is None:
-            return None
-        return session_info.client
+        return None if session_info is None else session_info.client
 
     async def start(self) -> None:
         """Start the runtime. This must be called only once, before
@@ -421,8 +419,7 @@ class Runtime:
         -----
         Threading: UNSAFE. Must be called on the eventloop thread.
         """
-        session_info = self._session_mgr.get_session_info(session_id)
-        if session_info:
+        if session_info := self._session_mgr.get_session_info(session_id):
             self._message_cache.remove_refs_for_session(session_info.session)
             self._session_mgr.close_session(session_id)
         self._on_session_disconnected()
@@ -446,8 +443,7 @@ class Runtime:
         -----
         Threading: UNSAFE. Must be called on the eventloop thread.
         """
-        session_info = self._session_mgr.get_active_session_info(session_id)
-        if session_info:
+        if session_info := self._session_mgr.get_active_session_info(session_id):
             # NOTE: Ideally, we'd like to keep ForwardMsgCache refs for a session around
             # when a session is disconnected (and defer their cleanup until the session
             # is garbage collected), but this would be difficult to do as the
@@ -590,9 +586,7 @@ class Runtime:
         try:
             if self._state == RuntimeState.INITIAL:
                 self._set_state(RuntimeState.NO_SESSIONS_CONNECTED)
-            elif self._state == RuntimeState.ONE_OR_MORE_SESSIONS_CONNECTED:
-                pass
-            else:
+            elif self._state != RuntimeState.ONE_OR_MORE_SESSIONS_CONNECTED:
                 raise RuntimeError(f"Bad Runtime state at start: {self._state}")
 
             # Signal that we're started and ready to accept sessions

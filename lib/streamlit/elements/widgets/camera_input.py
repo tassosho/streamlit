@@ -67,11 +67,7 @@ class CameraInputSerde:
         self, ui_value: Optional[FileUploaderStateProto], widget_id: str
     ) -> SomeUploadedSnapshotFile:
         upload_files = _get_upload_files(ui_value)
-        if len(upload_files) == 0:
-            return_value = None
-        else:
-            return_value = upload_files[0]
-        return return_value
+        return None if len(upload_files) == 0 else upload_files[0]
 
 
 class CameraInputMixin:

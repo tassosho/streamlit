@@ -457,8 +457,8 @@ class ScriptRunnerTest(AsyncTestCase):
     def test_runtime_error(self, show_error_details: bool):
         """Tests that we correctly handle scripts with runtime errors."""
         with testutil.patch_config_options(
-            {"client.showErrorDetails": show_error_details}
-        ):
+                {"client.showErrorDetails": show_error_details}
+            ):
             scriptrunner = TestScriptRunner("runtime_error.py")
             scriptrunner.request_rerun(RerunData())
             scriptrunner.start()
@@ -481,12 +481,9 @@ class ScriptRunnerTest(AsyncTestCase):
             elts = scriptrunner.elements()
             self.assertEqual(elts[0].WhichOneof("type"), "text")
 
-            if show_error_details:
-                self._assert_num_deltas(scriptrunner, 2)
-                self.assertEqual(elts[1].WhichOneof("type"), "exception")
-            else:
-                self._assert_num_deltas(scriptrunner, 2)
-                self.assertEqual(elts[1].WhichOneof("type"), "exception")
+            self._assert_num_deltas(scriptrunner, 2)
+            self.assertEqual(elts[1].WhichOneof("type"), "exception")
+            if not show_error_details:
                 exc_msg = elts[1].exception.message
                 self.assertTrue(_GENERIC_UNCAUGHT_EXCEPTION_TEXT == exc_msg)
 
@@ -714,7 +711,7 @@ class ScriptRunnerTest(AsyncTestCase):
         # Ensure that each runner's radio value is as expected.
         for ii, runner in enumerate(runners):
             self._assert_text_deltas(
-                runner, ["False", "ahoy!", "%s" % ii, "False", "loop_forever"]
+                runner, ["False", "ahoy!", f"{ii}", "False", "loop_forever"]
             )
             runner.request_stop()
 

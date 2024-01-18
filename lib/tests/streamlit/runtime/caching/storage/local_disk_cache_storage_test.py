@@ -193,9 +193,9 @@ class LocalDiskPersistCacheStorageTest(unittest.TestCase):
     def test_storage_set(self):
         """Test that storage.set() writes the correct value to disk."""
         self.storage.set("new-key", b"new-value")
-        self.assertTrue(os.path.exists(self.tempdir.path + "/func-key-new-key.memo"))
+        self.assertTrue(os.path.exists(f"{self.tempdir.path}/func-key-new-key.memo"))
 
-        with open(self.tempdir.path + "/func-key-new-key.memo", "rb") as f:
+        with open(f"{self.tempdir.path}/func-key-new-key.memo", "rb") as f:
             self.assertEqual(f.read(), b"new-value")
 
     @patch(
@@ -217,9 +217,9 @@ class LocalDiskPersistCacheStorageTest(unittest.TestCase):
     def test_storage_delete(self):
         """Test that storage.delete() removes the correct file from disk."""
         self.storage.set("new-key", b"new-value")
-        self.assertTrue(os.path.exists(self.tempdir.path + "/func-key-new-key.memo"))
+        self.assertTrue(os.path.exists(f"{self.tempdir.path}/func-key-new-key.memo"))
         self.storage.delete("new-key")
-        self.assertFalse(os.path.exists(self.tempdir.path + "/func-key-new-key.memo"))
+        self.assertFalse(os.path.exists(f"{self.tempdir.path}/func-key-new-key.memo"))
 
         with self.assertRaises(CacheStorageKeyNotFoundError):
             self.storage.get("new-key")
@@ -228,16 +228,16 @@ class LocalDiskPersistCacheStorageTest(unittest.TestCase):
         """Test that storage.clear() removes all storage files from disk."""
         self.storage.set("some-key", b"some-value")
         self.storage.set("another-key", b"another-value")
-        self.assertTrue(os.path.exists(self.tempdir.path + "/func-key-some-key.memo"))
+        self.assertTrue(os.path.exists(f"{self.tempdir.path}/func-key-some-key.memo"))
         self.assertTrue(
-            os.path.exists(self.tempdir.path + "/func-key-another-key.memo")
+            os.path.exists(f"{self.tempdir.path}/func-key-another-key.memo")
         )
 
         self.storage.clear()
 
-        self.assertFalse(os.path.exists(self.tempdir.path + "/func-key-some-key.memo"))
+        self.assertFalse(os.path.exists(f"{self.tempdir.path}/func-key-some-key.memo"))
         self.assertFalse(
-            os.path.exists(self.tempdir.path + "/func-key-another-key.memo")
+            os.path.exists(f"{self.tempdir.path}/func-key-another-key.memo")
         )
 
         with self.assertRaises(CacheStorageKeyNotFoundError):

@@ -16,6 +16,7 @@
 Altair is a Python visualization library based on Vega-Lite,
 a nice JSON schema for expressing graphs and charts.
 """
+
 from __future__ import annotations
 
 from contextlib import nullcontext
@@ -90,7 +91,7 @@ MELTED_COLOR_COLUMN_NAME = MELTED_COLOR_COLUMN_TITLE + PROTECTION_SUFFIX
 
 # Name we use for a column we know doesn't exist in the data, to address a Vega-Lite rendering bug
 # where empty charts need x, y encodings set in order to take up space.
-NON_EXISTENT_COLUMN_NAME = "DOES_NOT_EXIST" + PROTECTION_SUFFIX
+NON_EXISTENT_COLUMN_NAME = f"DOES_NOT_EXIST{PROTECTION_SUFFIX}"
 
 
 class ArrowAltairMixin:
@@ -793,7 +794,7 @@ class ArrowAltairMixin:
         https://altair-viz.github.io/gallery/.
 
         """
-        if theme != "streamlit" and theme != None:
+        if theme not in ["streamlit", None]:
             raise StreamlitAPIException(
                 f'You set theme="{theme}" while Streamlit charts only support theme=”streamlit” or theme=None to fallback to the default library theme.'
             )
@@ -834,10 +835,7 @@ def _is_date_column(df: pd.DataFrame, name: str | None) -> bool:
         return False
 
     column = df[name]
-    if column.size == 0:
-        return False
-
-    return isinstance(column.iloc[0], date)
+    return False if column.size == 0 else isinstance(column.iloc[0], date)
 
 
 def _melt_data(
@@ -867,9 +865,7 @@ def _melt_data(
             "The columns used for rendering the chart contain too many values with mixed types. Please select the columns manually via the y parameter."
         )
 
-    # Arrow has problems with object types after melting two different dtypes
-    # pyarrow.lib.ArrowTypeError: "Expected a <TYPE> object, got a object"
-    fixed_df = type_util.fix_arrow_incompatible_column_types(
+    return type_util.fix_arrow_incompatible_column_types(
         melted_df,
         selected_columns=[
             *columns_to_leave_alone,
@@ -877,8 +873,6 @@ def _melt_data(
             new_y_column_name,
         ],
     )
-
-    return fixed_df
 
 
 def prep_data(
@@ -1021,7 +1015,7 @@ def _generate_chart(
 def _maybe_reset_index_in_place(
     df: pd.DataFrame, x_column: str | None, y_column_list: List[str]
 ) -> str | None:
-    if x_column is None and len(y_column_list) > 0:
+    if x_column is None and y_column_list:
         if df.index.name is None:
             # Pick column name that is unlikely to collide with user-given names.
             x_column = SEPARATED_INDEX_COLUMN_NAME
@@ -1069,10 +1063,6 @@ def _maybe_convert_color_column_in_place(df: pd.DataFrame, color_column: str | N
     elif is_color_tuple_like(first_color_datum):
         # Tuples need to be converted to CSS-valid.
         df[color_column] = df[color_column].map(to_css_color)
-    else:
-        # Other kinds of colors columns (i.e. pure numbers or nominal strings) shouldn't
-        # be converted since they are treated by Vega-Lite as sequential or categorical colors.
-        pass
 
 
 def _convert_col_names_to_str_in_place(
@@ -1140,7 +1130,7 @@ def _parse_y_columns(
         y_column_list = [y_from_user]
 
     elif type_util.is_sequence(y_from_user):
-        y_column_list = list(str(col) for col in y_from_user)
+        y_column_list = [str(col) for col in y_from_user]
 
     else:
         raise StreamlitAPIException(
@@ -1205,7 +1195,7 @@ def _maybe_melt(
     """If multiple columns are set for y, melt the dataframe into long format."""
     y_column: str | None
 
-    if len(y_column_list) == 0:
+    if not y_column_list:
         y_column = None
     elif len(y_column_list) == 1:
         y_column = y_column_list[0]
@@ -1255,11 +1245,7 @@ def _get_x_encoding(
         # Only show a label in the x axis if the user passed a column explicitly. We
         # could go either way here, but I'm keeping this to avoid breaking the existing
         # behavior.
-        if x_from_user is None:
-            x_title = ""
-        else:
-            x_title = x_column
-
+        x_title = "" if x_from_user is None else x_column
     return alt.X(
         x_field,
         title=x_title,
@@ -1294,11 +1280,7 @@ def _get_y_encoding(
         # Only show a label in the y axis if the user passed a column explicitly. We
         # could go either way here, but I'm keeping this to avoid breaking the existing
         # behavior.
-        if y_from_user is None:
-            y_title = ""
-        else:
-            y_title = y_column
-
+        y_title = "" if y_from_user is None else y_column
     return alt.Y(
         field=y_field,
         title=y_title,
@@ -1367,21 +1349,12 @@ def _get_color_encoding(
             # full y-axis disappears (maybe a bug in vega-lite)?
             color_enc["title"] = " "
 
-        # If the 0th element in the color column looks like a color, we'll use the color column's
-        # values as the colors in our chart.
         elif len(df[color_column]) and is_color_like(df[color_column][0]):
             color_range = [to_css_color(c) for c in df[color_column].unique()]
             color_enc["scale"] = alt.Scale(range=color_range)
             # Don't show the color legend, because it will just show text with the color values,
             # like #f00, #00f, etc, which are not user-readable.
             color_enc["legend"] = None
-
-        # Otherwise, let Vega-Lite auto-assign colors.
-        # This codepath is typically reached when the color column contains numbers (in which case
-        # Vega-Lite uses a color gradient to represent them) or strings (in which case Vega-Lite
-        # assigns one color for each unique value).
-        else:
-            pass
 
         return color_enc
 
@@ -1517,7 +1490,7 @@ def marshall(
         """Altair data transformer that returns a fake named dataset with the
         object id.
         """
-        name = str(id(data))
+        name = id(data)
         datasets[name] = data
         return {"name": name}
 

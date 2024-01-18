@@ -124,7 +124,7 @@ def get_changed_files() -> List[str]:
             "--no-commit-id",
             "--name-only",
             "-r",
-            f"HEAD^",
+            "HEAD^",
             "HEAD",
         ]
     )
@@ -152,12 +152,11 @@ def get_changed_python_dependencies_files() -> List[str]:
     been modified.
     """
     changed_files = get_changed_files()
-    changed_dependencies_files = sorted(
+    return sorted(
         path
         for pattern in FILES_WITH_PYTHON_DEPENDENCIES
         for path in fnmatch.filter(changed_files, pattern)
     )
-    return changed_dependencies_files
 
 
 def check_if_pr_has_label(label: str, action: str) -> bool:
@@ -185,8 +184,7 @@ def get_github_input(input_key: str) -> Optional[str]:
     if GITHUB_INPUTS_ENV_VAR not in os.environ:
         return None
     inputs = json.loads(os.environ[GITHUB_INPUTS_ENV_VAR]) or {}
-    input_value = inputs.get(input_key)
-    return input_value
+    return inputs.get(input_key)
 
 
 def is_canary_build() -> bool:
@@ -217,8 +215,9 @@ def is_canary_build() -> bool:
         print("Current build is canary, because it is enforced by input")
         return True
     if GITHUB_EVENT_NAME == GithubEvent.PULL_REQUEST.value:
-        changed_dependencies_files = get_changed_python_dependencies_files()
-        if changed_dependencies_files:
+        if (
+            changed_dependencies_files := get_changed_python_dependencies_files()
+        ):
             print(f"{len(changed_dependencies_files)} files changed in this build.")
             print(
                 "Current build is canary, "

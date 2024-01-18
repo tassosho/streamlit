@@ -108,9 +108,7 @@ def _check_and_convert_to_indices(
 def _get_default_count(default: Union[Sequence[Any], Any, None]) -> int:
     if default is None:
         return 0
-    if not is_iterable(default):
-        return 1
-    return len(cast(Sequence[Any], default))
+    return 1 if not is_iterable(default) else len(cast(Sequence[Any], default))
 
 
 def _get_over_max_options_message(current_selections: int, max_selections: int):

@@ -329,10 +329,9 @@ class Button(Widget):
         """The value of the button. (bool)"""
         if self._value:
             return self._value
-        else:
-            state = self.root.session_state
-            assert state
-            return cast(bool, state[self.id])
+        state = self.root.session_state
+        assert state
+        return cast(bool, state[self.id])
 
     def set_value(self, v: bool) -> Button:
         """Set the value of the button."""
@@ -374,10 +373,9 @@ class ChatInput(Widget):
         """The value of the widget. (str)"""
         if self._value:
             return self._value
-        else:
-            state = self.root.session_state
-            assert state
-            return state[self.id]  # type: ignore
+        state = self.root.session_state
+        assert state
+        return state[self.id]  # type: ignore
 
 
 @dataclass(repr=False)
@@ -407,10 +405,9 @@ class Checkbox(Widget):
         """The value of the widget. (bool)"""
         if self._value is not None:
             return self._value
-        else:
-            state = self.root.session_state
-            assert state
-            return cast(bool, state[self.id])
+        state = self.root.session_state
+        assert state
+        return cast(bool, state[self.id])
 
     def set_value(self, v: bool) -> Checkbox:
         """Set the value of the widget."""
@@ -468,10 +465,9 @@ class ColorPicker(Widget):
         """The currently selected value as a hex string. (str)"""
         if self._value is not None:
             return self._value
-        else:
-            state = self.root.session_state
-            assert state
-            return cast(str, state[self.id])
+        state = self.root.session_state
+        assert state
+        return cast(str, state[self.id])
 
     @property
     def _widget_state(self) -> WidgetState:
@@ -730,10 +726,9 @@ class Multiselect(Widget, Generic[T]):
         """The currently selected values from the options. (list)"""
         if self._value is not None:
             return self._value
-        else:
-            state = self.root.session_state
-            assert state
-            return cast(List[T], state[self.id])
+        state = self.root.session_state
+        assert state
+        return cast(List[T], state[self.id])
 
     @property
     def indices(self) -> Sequence[int]:
@@ -758,13 +753,11 @@ class Multiselect(Widget, Generic[T]):
         instead.
         """
         current = self.value
-        if v in current:
-            return self
-        else:
+        if v not in current:
             new = current.copy()
             new.append(v)
             self.set_value(new)
-            return self
+        return self
 
     def unselect(self, v: T) -> Multiselect[T]:
         """
@@ -773,14 +766,12 @@ class Multiselect(Widget, Generic[T]):
         instance is removed.
         """
         current = self.value
-        if v not in current:
-            return self
-        else:
+        if v in current:
             new = current.copy()
             while v in new:
                 new.remove(v)
             self.set_value(new)
-            return self
+        return self
 
 
 Number = Union[int, float]
@@ -824,12 +815,11 @@ class NumberInput(Widget):
         """Get the current value of the ``st.number_input`` widget."""
         if not isinstance(self._value, InitialValue):
             return self._value
-        else:
-            state = self.root.session_state
-            assert state
+        state = self.root.session_state
+        assert state
 
-            # Awkward to do this with `cast`
-            return state[self.id]  # type: ignore
+        # Awkward to do this with `cast`
+        return state[self.id]  # type: ignore
 
     def increment(self) -> NumberInput:
         """Increment the ``st.number_input`` widget as if the user clicked "+"."""
@@ -870,19 +860,16 @@ class Radio(Widget, Generic[T]):
     @property
     def index(self) -> int | None:
         """The index of the current selection. (int)"""
-        if self.value is None:
-            return None
-        return self.options.index(str(self.value))
+        return None if self.value is None else self.options.index(str(self.value))
 
     @property
     def value(self) -> T | None:
         """The currently selected value from the options. (Any)"""
         if not isinstance(self._value, InitialValue):
             return self._value
-        else:
-            state = self.root.session_state
-            assert state
-            return cast(T, state[self.id])
+        state = self.root.session_state
+        assert state
+        return cast(T, state[self.id])
 
     def set_value(self, v: T | None) -> Radio[T]:
         """Set the selection by value."""
@@ -926,19 +913,16 @@ class Selectbox(Widget, Generic[T]):
         if self.value is None:
             return None
 
-        if len(self.options) == 0:
-            return 0
-        return self.options.index(str(self.value))
+        return 0 if len(self.options) == 0 else self.options.index(str(self.value))
 
     @property
     def value(self) -> T | None:
         """The currently selected value from the options. (Any)"""
         if not isinstance(self._value, InitialValue):
             return self._value
-        else:
-            state = self.root.session_state
-            assert state
-            return cast(T, state[self.id])
+        state = self.root.session_state
+        assert state
+        return cast(T, state[self.id])
 
     def set_value(self, v: T | None) -> Selectbox[T]:
         """Set the selection by value."""
@@ -1020,11 +1004,10 @@ class SelectSlider(Widget, Generic[T]):
         """The currently selected value or range. (Any or Sequence of Any)"""
         if self._value is not None:
             return self._value
-        else:
-            state = self.root.session_state
-            assert state
-            # Awkward to do this with `cast`
-            return state[self.id]  # type: ignore
+        state = self.root.session_state
+        assert state
+        # Awkward to do this with `cast`
+        return state[self.id]  # type: ignore
 
     def set_range(self, lower: T, upper: T) -> SelectSlider[T]:
         """Set the ranged selection by values."""
@@ -1073,11 +1056,10 @@ class Slider(Widget, Generic[SliderScalarT]):
         """The currently selected value or range. (Any or Sequence of Any)"""
         if self._value is not None:
             return self._value
-        else:
-            state = self.root.session_state
-            assert state
-            # Awkward to do this with `cast`
-            return state[self.id]  # type: ignore
+        state = self.root.session_state
+        assert state
+        # Awkward to do this with `cast`
+        return state[self.id]  # type: ignore
 
     def set_range(
         self, lower: SliderScalarT, upper: SliderScalarT
@@ -1154,11 +1136,10 @@ class TextArea(Widget):
         """The current value of the widget. (str)"""
         if not isinstance(self._value, InitialValue):
             return self._value
-        else:
-            state = self.root.session_state
-            assert state
-            # Awkward to do this with `cast`
-            return state[self.id]  # type: ignore
+        state = self.root.session_state
+        assert state
+        # Awkward to do this with `cast`
+        return state[self.id]  # type: ignore
 
     def input(self, v: str) -> TextArea:
         """
@@ -1207,11 +1188,10 @@ class TextInput(Widget):
         """The current value of the widget. (str)"""
         if not isinstance(self._value, InitialValue):
             return self._value
-        else:
-            state = self.root.session_state
-            assert state
-            # Awkward to do this with `cast`
-            return state[self.id]  # type: ignore
+        state = self.root.session_state
+        assert state
+        # Awkward to do this with `cast`
+        return state[self.id]  # type: ignore
 
     def input(self, v: str) -> TextInput:
         """
@@ -1264,8 +1244,7 @@ class TimeInput(Widget):
         """The current value of the widget. (time)"""
         if not isinstance(self._value, InitialValue):
             v = self._value
-            v = v.time() if isinstance(v, datetime) else v
-            return v
+            return v.time() if isinstance(v, datetime) else v
         else:
             state = self.root.session_state
             assert state
@@ -1330,10 +1309,9 @@ class Toggle(Widget):
         """The current value of the widget. (bool)"""
         if self._value is not None:
             return self._value
-        else:
-            state = self.root.session_state
-            assert state
-            return cast(bool, state[self.id])
+        state = self.root.session_state
+        assert state
+        return cast(bool, state[self.id])
 
     def set_value(self, v: bool) -> Toggle:
         """Set the value of the widget."""
@@ -1367,11 +1345,7 @@ class Block:
         self.proto = proto
         if proto:
             ty = proto.WhichOneof("type")
-            if ty is not None:
-                self.type = ty
-            else:
-                # `st.container` has no sub-message
-                self.type = "container"
+            self.type = ty if ty is not None else "container"
         else:
             self.type = "unknown"
         self.root = root
@@ -1382,8 +1356,7 @@ class Block:
     def __iter__(self):
         yield self
         for child_idx in self.children:
-            for c in self.children[child_idx]:
-                yield c
+            yield from self.children[child_idx]
 
     def __getitem__(self, k: int) -> Node:
         return self.children[k]
@@ -1696,10 +1669,7 @@ Node: TypeAlias = Union[Element, Block]
 
 
 def get_widget_state(node: Node) -> WidgetState | None:
-    if isinstance(node, Widget):
-        return node._widget_state
-    else:
-        return None
+    return node._widget_state if isinstance(node, Widget) else None
 
 
 @dataclass(repr=False)

@@ -18,16 +18,14 @@ with st.form("my_form"):
     st.write("Inside the form")
     slider_val = st.slider("Form slider")
     checkbox_val = st.checkbox("Form checkbox")
-    submitted = st.form_submit_button("Submit", use_container_width=True)
-    if submitted:
+    if submitted := st.form_submit_button("Submit", use_container_width=True):
         st.write("slider", slider_val, "checkbox", checkbox_val)
 
 with st.form("my_form_2"):
     st.write("Inside the second form")
     slider_val = st.slider("Form slider 2")
     checkbox_val = st.checkbox("Form checkbox 2")
-    submitted = st.form_submit_button(
+    if submitted := st.form_submit_button(
         "Submit", help="Submit by clicking", use_container_width=True
-    )
-    if submitted:
+    ):
         st.write("slider 2:", slider_val, "checkbox 2:", checkbox_val)

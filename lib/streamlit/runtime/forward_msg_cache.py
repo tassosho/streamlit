@@ -283,13 +283,12 @@ class ForwardMsgCache(CacheStatsProvider):
         self._entries.clear()
 
     def get_stats(self) -> List[CacheStat]:
-        stats: List[CacheStat] = []
-        for entry_hash, entry in self._entries.items():
-            stats.append(
-                CacheStat(
-                    category_name="ForwardMessageCache",
-                    cache_name="",
-                    byte_length=entry.msg.ByteSize() if entry.msg is not None else 0,
-                )
+        stats: List[CacheStat] = [
+            CacheStat(
+                category_name="ForwardMessageCache",
+                cache_name="",
+                byte_length=entry.msg.ByteSize() if entry.msg is not None else 0,
             )
+            for entry_hash, entry in self._entries.items()
+        ]
         return group_stats(stats)

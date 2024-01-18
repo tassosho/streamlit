@@ -504,11 +504,10 @@ class TypeUtilTest(unittest.TestCase):
 
         class DummyClass:
             """DummyClass for testing purposes"""
-
         self.assertFalse(type_util.is_snowpark_data_object(DummyClass()))
 
         # empty list should not be snowpark dataframe
-        self.assertFalse(type_util.is_snowpark_data_object(list()))
+        self.assertFalse(type_util.is_snowpark_data_object([]))
 
         # list with items should not be snowpark dataframe
         self.assertFalse(

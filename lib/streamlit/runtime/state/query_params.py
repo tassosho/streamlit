@@ -49,12 +49,7 @@ class QueryParams(MutableMapping[str, str]):
                 raise KeyError(missing_key_error_message(key))
             value = self._query_params[key]
             if isinstance(value, list):
-                if len(value) == 0:
-                    return ""
-                else:
-                    # Return the last value to mimic Tornado's behavior
-                    # https://www.tornadoweb.org/en/stable/web.html#tornado.web.RequestHandler.get_query_argument
-                    return value[-1]
+                return "" if len(value) == 0 else value[-1]
             return value
         except KeyError:
             raise KeyError(missing_key_error_message(key))
@@ -116,10 +111,11 @@ class QueryParams(MutableMapping[str, str]):
         ctx.enqueue(msg)
 
     def clear(self) -> None:
-        new_query_params = {}
-        for key, value in self._query_params.items():
-            if key in EMBED_QUERY_PARAMS_KEYS:
-                new_query_params[key] = value
+        new_query_params = {
+            key: value
+            for key, value in self._query_params.items()
+            if key in EMBED_QUERY_PARAMS_KEYS
+        }
         self._query_params = new_query_params
 
         self._send_query_param_msg()

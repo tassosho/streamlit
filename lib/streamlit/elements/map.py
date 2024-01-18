@@ -331,14 +331,9 @@ def _get_lat_or_lon_col_name(
         col_name = col_name_from_user
 
     else:
-        # Try one of the default col_names:
-        candidate_col_name = None
-
-        for c in default_col_names:
-            if c in data.columns:
-                candidate_col_name = c
-                break
-
+        candidate_col_name = next(
+            (c for c in default_col_names if c in data.columns), None
+        )
         if candidate_col_name is None:
             formatted_allowed_col_name = ", ".join(map(repr, sorted(default_col_names)))
             formmated_col_names = ", ".join(map(repr, list(data.columns)))
@@ -389,11 +384,7 @@ def _get_value_and_col_name(
     else:
         col_name = None
 
-        if value_or_name is None:
-            pydeck_arg = default_value
-        else:
-            pydeck_arg = value_or_name
-
+        pydeck_arg = default_value if value_or_name is None else value_or_name
     return pydeck_arg, col_name
 
 
@@ -448,10 +439,7 @@ def _get_viewport_details(data, lat_col_name, lon_col_name, zoom):
     range_lat = abs(max_lat - min_lat)
 
     if zoom is None:
-        if range_lon > range_lat:
-            longitude_distance = range_lon
-        else:
-            longitude_distance = range_lat
+        longitude_distance = max(range_lon, range_lat)
         zoom = _get_zoom_level(longitude_distance)
 
     return zoom, center_lat, center_lon
@@ -473,12 +461,14 @@ def _get_zoom_level(distance: float) -> int:
         The zoom level, from 0 to 20.
 
     """
-    for i in range(len(_ZOOM_LEVELS) - 1):
-        if _ZOOM_LEVELS[i + 1] < distance <= _ZOOM_LEVELS[i]:
-            return i
-
-    # For small number of points the default zoom level will be used.
-    return _DEFAULT_ZOOM_LEVEL
+    return next(
+        (
+            i
+            for i in range(len(_ZOOM_LEVELS) - 1)
+            if _ZOOM_LEVELS[i + 1] < distance <= _ZOOM_LEVELS[i]
+        ),
+        _DEFAULT_ZOOM_LEVEL,
+    )
 
 
 def marshall(

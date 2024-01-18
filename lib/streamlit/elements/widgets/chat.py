@@ -296,7 +296,7 @@ class ChatMixin:
         # they will have no script_run_ctx.
         if runtime.exists():
             if (
-                len(list(self.dg._active_dg._parent_block_types)) > 0
+                list(self.dg._active_dg._parent_block_types)
                 or self.dg._active_dg._root_container == RootContainer.SIDEBAR
             ):
                 # TODO: This allows the user to create a chat_input inside a
@@ -309,7 +309,7 @@ class ChatMixin:
 
         chat_input_proto = ChatInputProto()
         chat_input_proto.id = id
-        chat_input_proto.placeholder = str(placeholder)
+        chat_input_proto.placeholder = placeholder
 
         if max_chars is not None:
             chat_input_proto.max_chars = max_chars

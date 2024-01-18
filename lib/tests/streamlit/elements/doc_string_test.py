@@ -47,4 +47,4 @@ class StHelpAPITest(DeltaGeneratorTestCase):
         self.assertTrue(
             el.doc_string.startswith("Change the current working directory")
         )
-        self.assertEqual(f"posix.chdir(path)", el.value)
+        self.assertEqual("posix.chdir(path)", el.value)

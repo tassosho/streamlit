@@ -43,7 +43,7 @@ class CheckboxSerde:
     value: bool
 
     def serialize(self, v: bool) -> bool:
-        return bool(v)
+        return v
 
     def deserialize(self, ui_value: Optional[bool], widget_id: str = "") -> bool:
         return bool(ui_value if ui_value is not None else self.value)
@@ -273,9 +273,7 @@ class CheckboxMixin:
     ) -> bool:
         key = to_key(key)
         check_callback_rules(self.dg, on_change)
-        check_session_state_rules(
-            default_value=None if value is False else value, key=key
-        )
+        check_session_state_rules(default_value=None if not value else value, key=key)
 
         maybe_raise_label_warnings(label, label_visibility)
 
@@ -283,7 +281,7 @@ class CheckboxMixin:
             "toggle" if type == CheckboxProto.StyleType.TOGGLE else "checkbox",
             user_key=key,
             label=label,
-            value=bool(value),
+            value=value,
             key=key,
             help=help,
             form_id=current_form_id(self.dg),
@@ -293,7 +291,7 @@ class CheckboxMixin:
         checkbox_proto = CheckboxProto()
         checkbox_proto.id = id
         checkbox_proto.label = label
-        checkbox_proto.default = bool(value)
+        checkbox_proto.default = value
         checkbox_proto.type = type
         checkbox_proto.form_id = current_form_id(self.dg)
         checkbox_proto.disabled = disabled

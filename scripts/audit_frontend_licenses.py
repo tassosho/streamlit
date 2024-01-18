@@ -147,25 +147,20 @@ def check_licenses(licenses) -> NoReturn:
         for exception in sorted(list(unused_exceptions)):
             print(f"Unused package exception, please remove: {exception}")
 
-    # Discover packages that don't have an acceptable license, and that don't
-    # have an explicit exception. If we have any, we print them out and exit
-    # with an error.
-    bad_packages = [
+    if bad_packages := [
         package
         for package in packages
         if (get_license_type(package) not in ACCEPTABLE_LICENSES)
         and (package not in PACKAGE_EXCEPTIONS)
         # workspace aggregator is yarn workspaces
         and "workspace-aggregator" not in package[0]
-    ]
-
-    if len(bad_packages) > 0:
+    ]:
         for package in bad_packages:
             print(f"Unacceptable license: '{get_license_type(package)}' (in {package})")
         print(f"{len(bad_packages)} unacceptable licenses")
         sys.exit(1)
 
-    print(f"No unacceptable licenses")
+    print("No unacceptable licenses")
     sys.exit(0)
 
 

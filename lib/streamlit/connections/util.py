@@ -43,13 +43,7 @@ def extract_from_dict(
     Dict[str, Any]
         A new dict containing the keys/values extracted from source_dict.
     """
-    d = {}
-
-    for k in keys:
-        if k in source_dict:
-            d[k] = source_dict.pop(k)
-
-    return d
+    return {k: source_dict.pop(k) for k in keys if k in source_dict}
 
 
 def load_from_snowsql_config_file(connection_name: str) -> Dict[str, Any]:

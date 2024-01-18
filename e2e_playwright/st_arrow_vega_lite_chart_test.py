@@ -94,7 +94,8 @@ def test_arrow_vega_lite_chart_default_theme(
     expect(arrow_vega_lite_charts).to_have_count(13)
 
     assert_snapshot(
-        arrow_vega_lite_charts.nth(11), name=f"arrow_vega_lite_chart_default_theming"
+        arrow_vega_lite_charts.nth(11),
+        name="arrow_vega_lite_chart_default_theming",
     )
 
 
@@ -107,5 +108,5 @@ def test_arrow_vega_lite_chart_user_supplied_colors(
 
     assert_snapshot(
         arrow_vega_lite_charts.nth(12),
-        name=f"arrow_vega_lite_chart_user_supplied_colors",
+        name="arrow_vega_lite_chart_user_supplied_colors",
     )

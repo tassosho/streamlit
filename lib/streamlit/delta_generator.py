@@ -384,7 +384,7 @@ class DeltaGenerator(
 
     @property
     def id(self) -> str:
-        return str(id(self))
+        return id(self)
 
     def _get_delta_path_str(self) -> str:
         """Returns the element's delta path as a string like "[0, 2, 3, 1]".
@@ -715,12 +715,10 @@ class DeltaGenerator(
             raise StreamlitAPIException("Only existing elements can `add_rows`.")
 
         # Accept syntax st._arrow_add_rows(df).
-        if data is not None and len(kwargs) == 0:
+        if data is not None and not kwargs:
             name = ""
-        # Accept syntax st._arrow_add_rows(foo=df).
         elif len(kwargs) == 1:
             name, data = kwargs.popitem()
-        # Raise error otherwise.
         else:
             raise StreamlitAPIException(
                 "Wrong number of arguments to add_rows()."
@@ -856,9 +854,7 @@ def _value_or_dg(
     """
     if value is NoValue:
         return None
-    if value is None:
-        return dg
-    return cast(Value, value)
+    return dg if value is None else cast(Value, value)
 
 
 def _enqueue_message(msg: ForwardMsg_pb2.ForwardMsg) -> None:

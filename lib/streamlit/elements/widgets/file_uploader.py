@@ -100,12 +100,9 @@ class FileUploaderSerde:
         upload_files = _get_upload_files(ui_value)
 
         if len(upload_files) == 0:
-            return_value: SomeUploadedFiles = [] if self.accept_multiple_files else None
+            return [] if self.accept_multiple_files else None
         else:
-            return_value = (
-                upload_files if self.accept_multiple_files else upload_files[0]
-            )
-        return return_value
+            return upload_files if self.accept_multiple_files else upload_files[0]
 
     def serialize(self, files: SomeUploadedFiles) -> FileUploaderStateProto:
         state_proto = FileUploaderStateProto()

@@ -318,13 +318,10 @@ class NumberInputMixin:
         if value == "min":
             if min_value is not None:
                 value = min_value
-            elif int_args and float_args:
+            elif int_args and float_args or not int_args:
                 value = 0.0  # if no values are provided, defaults to float
-            elif int_args:
-                value = 0
             else:
-                value = 0.0
-
+                value = 0
         int_value = isinstance(value, numbers.Integral)
         float_value = isinstance(value, float)
 
@@ -362,8 +359,7 @@ class NumberInputMixin:
             float(format % 2)
         except (TypeError, ValueError):
             raise StreamlitAPIException(
-                "Format string for st.number_input contains invalid characters: %s"
-                % format
+                f"Format string for st.number_input contains invalid characters: {format}"
             )
 
         # Ensure that the value matches arguments' types.

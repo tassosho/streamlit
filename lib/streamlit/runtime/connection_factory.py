@@ -336,8 +336,9 @@ def connection_factory(
 
         extra_info = "You may be missing a dependency required to use this connection."
         if missing_module:
-            pypi_package = MODULES_TO_PYPI_PACKAGES.get(missing_module.group(1))
-            if pypi_package:
+            if pypi_package := MODULES_TO_PYPI_PACKAGES.get(
+                missing_module.group(1)
+            ):
                 extra_info = f"You need to install the '{pypi_package}' package to use this connection."
 
         raise ModuleNotFoundError(f"{str(e)}. {extra_info}")
