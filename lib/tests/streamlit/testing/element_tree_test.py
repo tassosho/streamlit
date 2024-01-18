@@ -77,7 +77,7 @@ def test_chat():
             st.write(input)
 
     at = AppTest.from_function(script).run()
-    assert at.chat_input[0].value == None
+    assert at.chat_input[0].value is None
     msg = at.chat_message[0]
     assert msg.name == "user"
     assert msg.markdown[0].value == "`None`"
@@ -88,7 +88,7 @@ def test_chat():
 
     # verify value resets after use
     at.run()
-    assert at.chat_input[0].value == None
+    assert at.chat_input[0].value is None
 
     # verify reprs
     repr(at.chat_input[0])
@@ -506,11 +506,11 @@ def test_multiselect():
 
     sr3 = sr2.multiselect[1].select("zero").select("one").run()
     assert sr3.multiselect[0].value == ["b"]
-    assert set(sr3.multiselect[1].value) == set(["zero", "one", "two"])
+    assert set(sr3.multiselect[1].value) == {"zero", "one", "two"}
 
     sr4 = sr3.multiselect[0].unselect("b").run()
     assert sr4.multiselect[0].value == []
-    assert set(sr3.multiselect[1].value) == set(["zero", "one", "two"])
+    assert set(sr3.multiselect[1].value) == {"zero", "one", "two"}
 
     # Verify that creating the reprs does not throw
     repr(sr.multiselect[0])

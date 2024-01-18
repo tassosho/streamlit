@@ -54,7 +54,7 @@ st.altair_chart(chart.configure_mark(color="black"), theme="streamlit")
 # mark_arc was added in 4.2, but we have to support altair 4.0-4.1, so we
 # have to skip this part of the test when testing min versions.
 major, minor, patch = alt.__version__.split(".")
-if not (major == "4" and minor < "2"):
+if major != "4" or minor >= "2":
     source = pd.DataFrame(
         {"category": [1, 2, 3, 4, 5, 6], "value": [4, 6, 10, 3, 7, 8]}
     )

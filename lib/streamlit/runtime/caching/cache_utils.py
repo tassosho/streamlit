@@ -229,7 +229,7 @@ class CachedFunc:
         name = self._info.func.__qualname__
 
         if isinstance(self._info.show_spinner, bool):
-            if len(args) == 0 and len(kwargs) == 0:
+            if not args and not kwargs:
                 message = f"Running `{name}()`."
             else:
                 message = f"Running `{name}(...)`."
@@ -379,12 +379,7 @@ def _make_value_key(
         arg_name = _get_positional_arg_name(func, arg_idx)
         arg_pairs.append((arg_name, func_args[arg_idx]))
 
-    for kw_name, kw_val in func_kwargs.items():
-        # **kwargs ordering is preserved, per PEP 468
-        # https://www.python.org/dev/peps/pep-0468/, so this iteration is
-        # deterministic.
-        arg_pairs.append((kw_name, kw_val))
-
+    arg_pairs.extend((kw_name, kw_val) for kw_name, kw_val in func_kwargs.items())
     # Create the hash from each arg value, except for those args whose name
     # starts with "_". (Underscore-prefixed args are deliberately excluded from
     # hashing.)
@@ -455,8 +450,7 @@ def _make_function_key(cache_type: CacheType, func: types.FunctionType) -> str:
         source_code, hasher=func_hasher, cache_type=cache_type, hash_source=func
     )
 
-    cache_key = func_hasher.hexdigest()
-    return cache_key
+    return func_hasher.hexdigest()
 
 
 def _get_positional_arg_name(func: types.FunctionType, arg_index: int) -> str | None:

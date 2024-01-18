@@ -65,7 +65,7 @@ def test_multiselect_on_load(themed_app: Page, assert_snapshot: ImageCompareFunc
     multiselect_elements = themed_app.locator(".stMultiSelect")
     expect(multiselect_elements).to_have_count(12)
     for idx, el in enumerate(multiselect_elements.all()):
-        assert_snapshot(el, name="multiselect-" + str(idx))
+        assert_snapshot(el, name=f"multiselect-{str(idx)}")
 
 
 def test_multiselect_initial_value(app: Page):
@@ -108,7 +108,7 @@ def test_multiselect_show_values_in_dropdown(
     dropdown_elems = app.locator("li").all()
     assert len(dropdown_elems) == 2
     for idx, el in enumerate(dropdown_elems):
-        assert_snapshot(el, name="multiselect-dropdown-" + str(idx))
+        assert_snapshot(el, name=f"multiselect-dropdown-{str(idx)}")
 
 
 def test_multiselect_long_values_in_dropdown(
@@ -119,7 +119,7 @@ def test_multiselect_long_values_in_dropdown(
     multiselect_elem.locator("input").click()
     dropdown_elems = app.locator("li").all()
     for idx, el in enumerate(dropdown_elems):
-        assert_snapshot(el, name="multiselect-dropdown-long-label-" + str(idx))
+        assert_snapshot(el, name=f"multiselect-dropdown-long-label-{str(idx)}")
 
 
 def test_multiselect_register_callback(app: Page):

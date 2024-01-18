@@ -255,6 +255,9 @@ class StHelpTest(DeltaGeneratorTestCase):
         self.assertEqual("", ds.doc_string)
 
     def test_class_members(self):
+
+
+
         class MyClass(object):
             a = 1
             b = 2
@@ -273,8 +276,9 @@ class StHelpTest(DeltaGeneratorTestCase):
                 "Static method 1"
 
             @classmethod
-            def classmethod1(self, y=20):
+            def classmethod1(cls, y=20):
                 "Class method 1"
+
 
         with patch_varname_getter():
             st.help(MyClass)
@@ -297,6 +301,9 @@ class StHelpTest(DeltaGeneratorTestCase):
             self.assertEqual(ds.members[i].type, expected[3])
 
     def test_instance_members(self):
+
+
+
         class MyClass(object):
             a = 1
             b = 2
@@ -315,8 +322,9 @@ class StHelpTest(DeltaGeneratorTestCase):
                 "Static method 1"
 
             @classmethod
-            def classmethod1(self, y=20):
+            def classmethod1(cls, y=20):
                 "Class method 1"
+
 
         my_instance = MyClass()
 
@@ -436,7 +444,7 @@ class GetVariableNameFromCodeStrTest(unittest.TestCase):
         ]
 
         for code in tests:
-            actual = _get_variable_name_from_code_str(code + ",")
+            actual = _get_variable_name_from_code_str(f"{code},")
             self.assertEqual(actual, code)
 
     def test_if_dont_know_just_echo(self):

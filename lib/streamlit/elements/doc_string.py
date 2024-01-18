@@ -152,13 +152,7 @@ def _marshall(doc_string_proto: DocStringProto, obj: Any) -> None:
 
 
 def _get_name(obj):
-    # Try to get the fully-qualified name of the object.
-    # For example:
-    #   st.help(bar.Baz(123))
-    #
-    #   The name is bar.Baz
-    name = getattr(obj, "__qualname__", None)
-    if name:
+    if name := getattr(obj, "__qualname__", None):
         return name
 
     # Try to get the name of the object.
@@ -224,10 +218,7 @@ def _get_docstring(obj):
         ):
             doc_string = inspect.getdoc(obj_type)
 
-    if doc_string:
-        return doc_string.strip()
-
-    return None
+    return doc_string.strip() if doc_string else None
 
 
 def _get_variable_name():
@@ -241,10 +232,7 @@ def _get_variable_name():
     """
     code = _get_current_line_of_code_as_str()
 
-    if code is None:
-        return None
-
-    return _get_variable_name_from_code_str(code)
+    return None if code is None else _get_variable_name_from_code_str(code)
 
 
 def _get_variable_name_from_code_str(code):
@@ -379,7 +367,7 @@ def _is_stcommand(tree, command_name):
     """Checks whether the AST in tree is a call for command_name."""
     root_node = tree.body[0].value
 
-    if not type(root_node) is ast.Call:
+    if type(root_node) is not ast.Call:
         return False
 
     return (
@@ -396,17 +384,11 @@ def _get_stcommand_arg(tree):
 
     root_node = tree.body[0].value
 
-    if root_node.args:
-        return root_node.args[0]
-
-    return None
+    return root_node.args[0] if root_node.args else None
 
 
 def _get_type_as_str(obj):
-    if inspect.isclass(obj):
-        return "class"
-
-    return str(type(obj).__name__)
+    return "class" if inspect.isclass(obj) else str(type(obj).__name__)
 
 
 def _get_first_line(text):
@@ -422,9 +404,7 @@ def _get_weight(value):
         return 3
     if inspect.isclass(value):
         return 2
-    if callable(value):
-        return 1
-    return 0
+    return 1 if callable(value) else 0
 
 
 def _get_value(obj, var_name):
@@ -449,11 +429,7 @@ def _get_value(obj, var_name):
     sig = _get_signature(name_obj) or ""
 
     if name:
-        if module:
-            obj_value = f"{module}.{name}{sig}"
-        else:
-            obj_value = f"{name}{sig}"
-
+        obj_value = f"{module}.{name}{sig}" if module else f"{name}{sig}"
     if obj_value == var_name:
         # No need to repeat the same info.
         # For example: st.help(re) shouldn't show "re module re", just "re module".
@@ -478,16 +454,12 @@ def _get_human_readable_value(value):
         # "<foo blarg at 0x15ee6f9a0>".
         return _shorten(value_str)
 
-    if is_mem_address_str(value_str):
-        # If value_str looks like "<foo blarg at 0x15ee6f9a0>" it's not human readable.
-        return None
-
-    return _shorten(value_str)
+    return None if is_mem_address_str(value_str) else _shorten(value_str)
 
 
 def _shorten(s, length=300):
     s = s.strip()
-    return s[:length] + "..." if len(s) > length else s
+    return f"{s[:length]}..." if len(s) > length else s
 
 
 def _is_computed_property(obj, attr_name):
@@ -518,9 +490,7 @@ def _get_members(obj):
         if attr_name.startswith("_"):
             continue
 
-        is_computed_value = _is_computed_property(obj, attr_name)
-
-        if is_computed_value:
+        if is_computed_value := _is_computed_property(obj, attr_name):
             parent_attr = getattr(obj.__class__, attr_name)
 
             member_type = "property"

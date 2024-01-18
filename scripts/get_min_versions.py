@@ -30,16 +30,16 @@ for requirement in package.requires():  # type: ignore
     # We will see both the lower bound and upper bound parts of each requriment
     # So we ignore the ones that aren't the lower bound.
     for comparator, version in requirement.specs:
-        if comparator == "==":
-            if len(requirement.specs) != 1:
-                raise ValueError(f"Invalid dependency: {requirement}")
-            dependency += "==" + version
-        elif comparator == "<=":
-            if len(requirement.specs) != 2:
-                raise ValueError(f"Invalid dependency: {requirement}")
-        elif comparator == ">=":
-            dependency += "==" + version
-
+        if (
+            comparator == "<="
+            and len(requirement.specs) != 2
+            or comparator != "<="
+            and comparator == "=="
+            and len(requirement.specs) != 1
+        ):
+            raise ValueError(f"Invalid dependency: {requirement}")
+        elif comparator != "<=" and comparator in ["==", ">="]:
+            dependency += f"=={version}"
     oldest_dependencies.append(dependency)
 
 for dependency in sorted(oldest_dependencies):

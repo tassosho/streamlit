@@ -147,7 +147,7 @@ class _HashStack:
     def pretty_print(self):
         def to_str(v):
             try:
-                return "Object of type %s: %s" % (type_util.get_fqn_type(v), str(v))
+                return f"Object of type {type_util.get_fqn_type(v)}: {str(v)}"
             except Exception:
                 return "<Unable to convert item to string>"
 
@@ -260,10 +260,7 @@ class _Cells:
 
 
 def _get_context(func) -> Context:
-    varnames = {}
-    if inspect.ismethod(func):
-        varnames = {"self": func.__self__}
-
+    varnames = {"self": func.__self__} if inspect.ismethod(func) else {}
     return Context(globals=func.__globals__, cells=_Cells(), varnames=varnames)
 
 
@@ -280,12 +277,7 @@ def _key(obj: Optional[Any]) -> Any:
 
     def is_simple(obj):
         return (
-            isinstance(obj, bytes)
-            or isinstance(obj, bytearray)
-            or isinstance(obj, str)
-            or isinstance(obj, float)
-            or isinstance(obj, int)
-            or isinstance(obj, bool)
+            isinstance(obj, (bytes, bytearray, str, float, int, bool))
             or obj is None
         )
 
@@ -395,9 +387,7 @@ class _CodeHasher:
             )
 
         filepath = os.path.abspath(filename)
-        file_is_blacklisted = _FOLDER_BLACK_LIST.is_blacklisted(filepath)
-        # Short circuiting for performance.
-        if file_is_blacklisted:
+        if file_is_blacklisted := _FOLDER_BLACK_LIST.is_blacklisted(filepath):
             return False
         return file_util.file_is_in_folder_glob(
             filepath, self._get_main_script_directory()
@@ -417,7 +407,7 @@ class _CodeHasher:
             # deep, so we don't try to hash them at all.
             return self.to_bytes(id(obj))
 
-        elif isinstance(obj, bytes) or isinstance(obj, bytearray):
+        elif isinstance(obj, (bytes, bytearray)):
             return obj
 
         elif type_util.get_fqn_type(obj) in self._hash_funcs:
@@ -509,9 +499,7 @@ class _CodeHasher:
             return h.digest()
 
         elif hasattr(obj, "name") and (
-            isinstance(obj, io.IOBase)
-            # Handle temporary files used during testing
-            or isinstance(obj, tempfile._TemporaryFileWrapper)
+            isinstance(obj, (io.IOBase, tempfile._TemporaryFileWrapper))
         ):
             # Hash files as name + last modification date + offset.
             # NB: we're using hasattr("name") to differentiate between
@@ -527,7 +515,7 @@ class _CodeHasher:
         elif isinstance(obj, Pattern):
             return self.to_bytes([obj.pattern, obj.flags])
 
-        elif isinstance(obj, io.StringIO) or isinstance(obj, io.BytesIO):
+        elif isinstance(obj, (io.StringIO, io.BytesIO)):
             # Hash in-memory StringIO/BytesIO by their full contents
             # and seek position.
             self.update(h, obj.tell())
@@ -615,7 +603,7 @@ class _CodeHasher:
             if obj.__module__.startswith("streamlit"):
                 # Ignore streamlit modules even if they are in the CWD
                 # (e.g. during development).
-                return self.to_bytes("%s.%s" % (obj.__module__, obj.__name__))
+                return self.to_bytes(f"{obj.__module__}.{obj.__name__}")
 
             code = getattr(obj, "__code__", None)
             assert code is not None
@@ -754,7 +742,7 @@ def get_referenced_objects(code, context: Context) -> List[Any]:
                 if tos is None:
                     refs.append(op.argval)
                 elif isinstance(tos, str):
-                    tos += "." + op.argval
+                    tos += f".{op.argval}"
                 else:
                     tos = getattr(tos, op.argval)
             elif op.opname == "DELETE_FAST" and tos:
@@ -841,7 +829,7 @@ class UserHashError(StreamlitAPIException):
         args = _get_error_message_args(orig_exc, cached_func)
 
         if hasattr(hash_func, "__name__"):
-            args["hash_func_name"] = "`%s()`" % hash_func.__name__
+            args["hash_func_name"] = f"`{hash_func.__name__}()`"
         else:
             args["hash_func_name"] = "a function"
 
@@ -996,6 +984,4 @@ def _get_failing_lines(code, lineno: int) -> List[str]:
 
     start = lineno - source_lineno
     end = min(start + 3, len(source_lines))
-    lines = source_lines[start:end]
-
-    return lines
+    return source_lines[start:end]

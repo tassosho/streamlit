@@ -117,7 +117,7 @@ class LLMThoughtLabeler:
         input_str_len = min(MAX_TOOL_INPUT_STR_LENGTH, len(input_str))
         input_str = input_str[:input_str_len]
         if len(tool.input_str) > input_str_len:
-            input_str = input_str + "..."
+            input_str = f"{input_str}..."
         input_str = input_str.replace("\n", " ")
         return f"**{name}:** {input_str}"
 
@@ -180,7 +180,7 @@ class LLMThought:
         self._llm_token_stream += _convert_newlines(token)
         if self._llm_token_stream_placeholder is None:
             self._llm_token_stream_placeholder = self._container.empty()
-        self._llm_token_stream_placeholder.markdown(self._llm_token_stream + "▕")
+        self._llm_token_stream_placeholder.markdown(f"{self._llm_token_stream}▕")
 
     def on_llm_end(self, response: LLMResult, **kwargs: Any) -> None:
         # `response` is the concatenation of all the tokens received by the LLM.

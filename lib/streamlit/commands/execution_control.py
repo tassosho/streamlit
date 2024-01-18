@@ -93,7 +93,7 @@ def experimental_rerun() -> NoReturn:
 
 
 @gather_metrics("switch_page")
-def switch_page(page: str) -> NoReturn:  # type: ignore[misc]
+def switch_page(page: str) -> NoReturn:    # type: ignore[misc]
     """Programmatically switch the current page in a multipage app.
 
     When ``st.switch_page()`` is called, the current page execution stops and
@@ -150,7 +150,7 @@ def switch_page(page: str) -> NoReturn:  # type: ignore[misc]
 
     matched_pages = [p for p in all_app_pages if p["script_path"] == requested_page]
 
-    if len(matched_pages) == 0:
+    if not matched_pages:
         raise StreamlitAPIException(
             f"Could not find page: '{page}'. Must be the file path relative to the main script, from the directory: {os.path.basename(main_script_directory)}."
         )

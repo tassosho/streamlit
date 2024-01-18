@@ -31,11 +31,7 @@ from tests.exception_capturing_thread import call_on_threads
 
 
 def random_coordinates():
-    return "{}.{}.{}".format(
-        random.randint(1, 4),
-        (random.randint(1, 12), random.randint(1, 12)),
-        random.randint(1, 99),
-    )
+    return f"{random.randint(1, 4)}.{(random.randint(1, 12), random.randint(1, 12))}.{random.randint(1, 99)}"
 
 
 # Smallest possible "real" media files for a handful of different formats.

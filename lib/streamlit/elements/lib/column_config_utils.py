@@ -368,11 +368,9 @@ def determine_dataframe_schema(
         The key is the column name in the underlying dataframe or ``_index`` for index columns.
     """
 
-    dataframe_schema: DataframeSchema = {}
-
-    # Add type of index:
-    # TODO(lukasmasuch): We need to apply changes here to support multiindex.
-    dataframe_schema[INDEX_IDENTIFIER] = _determine_data_kind(data_df.index)
+    dataframe_schema: DataframeSchema = {
+        INDEX_IDENTIFIER: _determine_data_kind(data_df.index)
+    }
 
     # Add types for all columns:
     for i, column in enumerate(data_df.items()):

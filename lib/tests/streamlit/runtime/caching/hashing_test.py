@@ -228,7 +228,7 @@ class HashTest(unittest.TestCase):
         self.assertNotEqual(get_hash({1: 1}), get_hash({1: 2}))
         self.assertNotEqual(get_hash({1: 1}), get_hash([(1, 1)]))
 
-        dict_gen = {1: (x for x in range(1))}
+        dict_gen = {1: iter(range(1))}
         with self.assertRaises(UnhashableTypeError):
             get_hash(dict_gen)
 
@@ -539,7 +539,7 @@ class NotHashableTest(unittest.TestCase):
     def _build_cffi(self, name):
         ffibuilder = cffi.FFI()
         ffibuilder.set_source(
-            "cffi_bin._%s" % name,
+            f"cffi_bin._{name}",
             r"""
                 static int %s(int x)
                 {
@@ -549,7 +549,7 @@ class NotHashableTest(unittest.TestCase):
             % name,
         )
 
-        ffibuilder.cdef("int %s(int);" % name)
+        ffibuilder.cdef(f"int {name}(int);")
         ffibuilder.compile(verbose=True)
 
     def test_compiled_ffi_not_hashable(self):
@@ -565,13 +565,13 @@ class NotHashableTest(unittest.TestCase):
 
     def test_generator_not_hashable(self):
         with self.assertRaises(UnhashableTypeError):
-            get_hash((x for x in range(1)))
+            get_hash(iter(range(1)))
 
     def test_hash_funcs_acceptable_keys(self):
         """Test that hashes are equivalent when hash_func key is supplied both as a
         type literal, and as a type name string.
         """
-        test_generator = (x for x in range(1))
+        test_generator = iter(range(1))
 
         with self.assertRaises(UnhashableTypeError):
             get_hash(test_generator)
@@ -607,7 +607,7 @@ If you think this is actually a Streamlit bug, please
     def test_non_hashable(self):
         """Test user provided hash functions."""
 
-        g = (x for x in range(1))
+        g = iter(range(1))
 
         # Unhashable object raises an error
         with self.assertRaises(UnhashableTypeError):

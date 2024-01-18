@@ -122,10 +122,7 @@ _OBJ_MEM_ADDRESS = re.compile(r"^\<[a-zA-Z_]+[a-zA-Z0-9<>._ ]* at 0x[0-9a-f]+\>$
 
 def is_mem_address_str(string):
     """Returns True if the string looks like <foo blarg at 0x15ee6f9a0>."""
-    if _OBJ_MEM_ADDRESS.match(string):
-        return True
-
-    return False
+    return bool(_OBJ_MEM_ADDRESS.match(string))
 
 
 _RE_CONTAINS_HTML = re.compile(r"(?:</[^<]+>)|(?:<[^<]+/>)")

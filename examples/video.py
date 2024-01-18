@@ -49,13 +49,12 @@ files = get_video_files_in_dir(avdir)
 
 if len(files) == 0:
     st.write(
-        "Put some video files in your home directory (%s) to activate this player."
-        % avdir
+        f"Put some video files in your home directory ({avdir}) to activate this player."
     )
 
 else:
     filename = st.selectbox(
-        "Select a video file from your home directory (%s) to play" % avdir,
+        f"Select a video file from your home directory ({avdir}) to play",
         files,
         0,
     )

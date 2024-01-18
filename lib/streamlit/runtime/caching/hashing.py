@@ -108,11 +108,10 @@ If you think this is actually a Streamlit bug, please
 
         if hash_source is None:
             object_desc = "something"
+        elif hasattr(hash_source, "__name__"):
+            object_desc = f"`{hash_source.__name__}()`"
         else:
-            if hasattr(hash_source, "__name__"):
-                object_desc = f"`{hash_source.__name__}()`"
-            else:
-                object_desc = "a function"
+            object_desc = "a function"
 
         decorator_name = ""
         if self.cache_type is CacheType.RESOURCE:
@@ -238,13 +237,9 @@ def _key(obj: Optional[Any]) -> Any:
 
     def is_simple(obj):
         return (
-            isinstance(obj, bytes)
-            or isinstance(obj, bytearray)
-            or isinstance(obj, str)
-            or isinstance(obj, float)
-            or isinstance(obj, int)
-            or isinstance(obj, bool)
-            or isinstance(obj, uuid.UUID)
+            isinstance(
+                obj, (bytes, bytearray, str, float, int, bool, uuid.UUID)
+            )
             or obj is None
         )
 
@@ -349,7 +344,7 @@ class _CacheFuncHasher:
             # deep, so we don't try to hash them at all.
             return self.to_bytes(id(obj))
 
-        elif isinstance(obj, bytes) or isinstance(obj, bytearray):
+        elif isinstance(obj, (bytes, bytearray)):
             return obj
 
         elif type_util.get_fqn_type(obj) in self._hash_funcs:
@@ -481,9 +476,7 @@ class _CacheFuncHasher:
             return h.digest()
 
         elif hasattr(obj, "name") and (
-            isinstance(obj, io.IOBase)
-            # Handle temporary files used during testing
-            or isinstance(obj, tempfile._TemporaryFileWrapper)
+            isinstance(obj, (io.IOBase, tempfile._TemporaryFileWrapper))
         ):
             # Hash files as name + last modification date + offset.
             # NB: we're using hasattr("name") to differentiate between
@@ -499,7 +492,7 @@ class _CacheFuncHasher:
         elif isinstance(obj, Pattern):
             return self.to_bytes([obj.pattern, obj.flags])
 
-        elif isinstance(obj, io.StringIO) or isinstance(obj, io.BytesIO):
+        elif isinstance(obj, (io.StringIO, io.BytesIO)):
             # Hash in-memory StringIO/BytesIO by their full contents
             # and seek position.
             self.update(h, obj.tell())

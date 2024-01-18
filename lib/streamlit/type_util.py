@@ -416,9 +416,7 @@ def _is_plotly_obj(obj: object) -> bool:
 def _is_list_of_plotly_objs(obj: object) -> TypeGuard[list[Any]]:
     if not isinstance(obj, list):
         return False
-    if len(obj) == 0:
-        return False
-    return all(_is_plotly_obj(item) for item in obj)
+    return False if len(obj) == 0 else all(_is_plotly_obj(item) for item in obj)
 
 
 def _is_probably_plotly_dict(obj: object) -> TypeGuard[dict[str, Any]]:
@@ -434,10 +432,7 @@ def _is_probably_plotly_dict(obj: object) -> TypeGuard[dict[str, Any]]:
     if any(_is_plotly_obj(v) for v in obj.values()):
         return True
 
-    if any(_is_list_of_plotly_objs(v) for v in obj.values()):
-        return True
-
-    return False
+    return any((_is_list_of_plotly_objs(v) for v in obj.values()))
 
 
 def is_function(x: object) -> TypeGuard[types.FunctionType]:
@@ -543,21 +538,16 @@ def convert_anything_to_df(
         # doesn't exist, when it does in fact exist in the parent class StyleRenderer!
         sr = cast("StyleRenderer", data)
 
-        if allow_styler:
-            if ensure_copy:
-                out = copy.deepcopy(sr)
-                out.data = sr.data.copy()
-                return cast("Styler", out)
-            else:
-                return data
-        else:
+        if not allow_styler:
             return cast("Styler", sr.data.copy() if ensure_copy else sr.data)
 
+        if not ensure_copy:
+            return data
+        out = copy.deepcopy(sr)
+        out.data = sr.data.copy()
+        return cast("Styler", out)
     if is_type(data, "numpy.ndarray"):
-        if len(data.shape) == 0:
-            return DataFrame([])
-        return DataFrame(data)
-
+        return DataFrame([]) if len(data.shape) == 0 else DataFrame(data)
     if (
         is_type(data, _SNOWPARK_DF_TYPE_STR)
         or is_type(data, _SNOWPARK_TABLE_TYPE_STR)
@@ -651,10 +641,7 @@ def ensure_indexable(obj: OptionSequence[V_co]) -> Sequence[V_co]:
     # This is an imperfect check because there is no guarantee that an `index`
     # function actually does the thing we want.
     index_fn = getattr(it, "index", None)
-    if callable(index_fn):
-        return it  # type: ignore[return-value]
-    else:
-        return list(it)
+    return it if callable(index_fn) else list(it)
 
 
 def check_python_comparable(seq: Sequence[Any]) -> None:
@@ -662,7 +649,7 @@ def check_python_comparable(seq: Sequence[Any]) -> None:
     That means that the equality operator (==) returns a boolean value.
     Which is not True for e.g. numpy arrays and pandas series."""
     try:
-        bool(seq[0] == seq[0])
+        seq[0] == seq[0]
     except LookupError:
         # In case of empty sequences, the check not raise an exception.
         pass
@@ -757,16 +744,15 @@ def is_colum_type_arrow_incompatible(column: Union[Series[Any], Index]) -> bool:
             # Get the first value to check if it is a supported list-like type.
             first_value = column.iloc[0]
 
-            if (
-                not is_list_like(first_value)
-                # dicts are list-like, but have issues in Arrow JS (see comments in Quiver.ts)
-                or is_dict_like(first_value)
-                # Frozensets are list-like, but are not compatible with pyarrow.
-                or isinstance(first_value, frozenset)
-            ):
-                # This seems to be an incompatible list-like type
-                return True
-            return False
+            return bool(
+                (
+                    not is_list_like(first_value)
+                    # dicts are list-like, but have issues in Arrow JS (see comments in Quiver.ts)
+                    or is_dict_like(first_value)
+                    # Frozensets are list-like, but are not compatible with pyarrow.
+                    or isinstance(first_value, frozenset)
+                )
+            )
     # We did not detect an incompatible type, so we assume it is compatible:
     return False
 
@@ -1041,10 +1027,7 @@ def to_key(key: Key) -> str:
 
 
 def to_key(key: Optional[Key]) -> Optional[str]:
-    if key is None:
-        return None
-    else:
-        return str(key)
+    return None if key is None else str(key)
 
 
 def maybe_tuple_to_list(item: Any) -> Any:

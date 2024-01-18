@@ -50,13 +50,12 @@ audiofiles = get_audio_files_in_dir(avdir)
 
 if len(audiofiles) == 0:
     st.write(
-        "Put some audio files in your home directory (%s) to activate this player."
-        % avdir
+        f"Put some audio files in your home directory ({avdir}) to activate this player."
     )
 
 else:
     filename = st.selectbox(
-        "Select an audio file from your home directory (%s) to play" % avdir,
+        f"Select an audio file from your home directory ({avdir}) to play",
         audiofiles,
         0,
     )
@@ -87,7 +86,9 @@ x = st.text("Making wave...")
 sine_wave = note(frequency, duration, amplitude, sampling_rate)
 
 fh = wave.open("sound.wav", "w")
-fh.setparams((nchannels, sampwidth, int(sampling_rate), nframes, comptype, compname))
+fh.setparams(
+    (nchannels, sampwidth, sampling_rate, nframes, comptype, compname)
+)
 
 x.text("Converting wave...")
 fh.writeframes(sine_wave)

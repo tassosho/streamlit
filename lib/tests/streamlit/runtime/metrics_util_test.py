@@ -99,26 +99,7 @@ class PageTelemetryTest(DeltaGeneratorTestCase):
         ctx.reset()
         ctx.gather_usage_stats = True
 
-    @parameterized.expand(
-        [
-            (10, "int"),
-            (0.01, "float"),
-            (True, "bool"),
-            (None, "NoneType"),
-            (["1"], "list"),
-            ({"foo": "bar"}, "dict"),
-            ("foo", "str"),
-            (datetime.date.today(), "datetime.date"),
-            (datetime.datetime.today().time(), "datetime.time"),
-            (pd.DataFrame(), "DataFrame"),
-            (pd.Series(), "PandasSeries"),
-            # Also support classes as input
-            (datetime.date, "datetime.date"),
-            (pd.DataFrame, "DataFrame"),
-            (SnowparkConnection, "SnowparkConnection"),
-            (SQLConnection, "SQLConnection"),
-        ]
-    )
+    @parameterized.expand([(10, "int"), (0.01, "float"), (True, "bool"), (None, "NoneType"), (["1"], "list"), ({"foo": "bar"}, "dict"), ("foo", "str"), (datetime.date.today(), "datetime.date"), (datetime.datetime.now().time(), "datetime.time"), (pd.DataFrame(), "DataFrame"), (pd.Series(), "PandasSeries"), (datetime.date, "datetime.date"), (pd.DataFrame, "DataFrame"), (SnowparkConnection, "SnowparkConnection"), (SQLConnection, "SQLConnection")])
     def test_get_type_name(self, obj: object, expected_type: str):
         """Test getting the type name via _get_type_name"""
         self.assertEqual(metrics_util._get_type_name(obj), expected_type)

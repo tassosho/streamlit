@@ -104,7 +104,7 @@ def _is_composable_message(msg: ForwardMsg) -> bool:
     # operation can raise errors, and we don't have a good way of handling
     # those errors in the message queue.
     delta_type = msg.delta.WhichOneof("type")
-    return delta_type != "add_rows" and delta_type != "arrow_add_rows"
+    return delta_type not in ["add_rows", "arrow_add_rows"]
 
 
 def _maybe_compose_deltas(old_delta: Delta, new_delta: Delta) -> Optional[Delta]:
@@ -137,7 +137,4 @@ def _maybe_compose_deltas(old_delta: Delta, new_delta: Delta) -> Optional[Delta]
     if new_delta_type == "new_element":
         return new_delta
 
-    if new_delta_type == "add_block":
-        return new_delta
-
-    return None
+    return new_delta if new_delta_type == "add_block" else None

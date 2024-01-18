@@ -99,14 +99,14 @@ class UploadFileRequestHandler(tornado.web.RequestHandler):
 
         try:
             if not self._is_active_session(session_id):
-                raise Exception(f"Invalid session_id")
+                raise Exception("Invalid session_id")
         except Exception as e:
             self.send_error(400, reason=str(e))
             return
 
         uploaded_files: List[UploadedFileRec] = []
 
-        for _, flist in files.items():
+        for flist in files.values():
             for file in flist:
                 uploaded_files.append(
                     UploadedFileRec(

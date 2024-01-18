@@ -16,6 +16,5 @@ import streamlit as st
 
 st.header("Page 2")
 
-page_6 = st.button("`/pages/06_page_6.py`")
-if page_6:
+if page_6 := st.button("`/pages/06_page_6.py`"):
     st.switch_page("/pages/06_page_6.py")

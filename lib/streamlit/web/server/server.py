@@ -189,27 +189,26 @@ def start_listening_tcp_socket(http_server: HTTPServer) -> None:
             break  # It worked! So let's break out of the loop.
 
         except (OSError, socket.error) as e:
-            if e.errno == errno.EADDRINUSE:
-                if server_port_is_manually_set():
-                    LOGGER.error("Port %s is already in use", port)
-                    sys.exit(1)
-                else:
-                    LOGGER.debug(
-                        "Port %s already in use, trying to use the next one.", port
-                    )
-                    port += 1
-                    # Save port 3000 because it is used for the development
-                    # server in the front end.
-                    if port == 3000:
-                        port += 1
-
-                    config.set_option(
-                        "server.port", port, ConfigOption.STREAMLIT_DEFINITION
-                    )
-                    call_count += 1
-            else:
+            if e.errno != errno.EADDRINUSE:
                 raise
 
+            if server_port_is_manually_set():
+                LOGGER.error("Port %s is already in use", port)
+                sys.exit(1)
+            else:
+                LOGGER.debug(
+                    "Port %s already in use, trying to use the next one.", port
+                )
+                port += 1
+                # Save port 3000 because it is used for the development
+                # server in the front end.
+                if port == 3000:
+                    port += 1
+
+                config.set_option(
+                    "server.port", port, ConfigOption.STREAMLIT_DEFINITION
+                )
+                call_count += 1
     if call_count >= MAX_PORT_SEARCH_RETRIES:
         raise RetriesExceeded(
             f"Cannot start Streamlit server. Port {port} is already in use, and "
@@ -359,19 +358,20 @@ class Server:
                         make_url_path_regex(base, "(.*)"),
                         StaticFileHandler,
                         {
-                            "path": "%s/" % static_path,
+                            "path": f"{static_path}/",
                             "default_filename": "index.html",
-                            "get_pages": lambda: set(
-                                [
-                                    page_info["page_name"]
-                                    for page_info in source_util.get_pages(
-                                        self.main_script_path
-                                    ).values()
-                                ]
-                            ),
+                            "get_pages": lambda: {
+                                page_info["page_name"]
+                                for page_info in source_util.get_pages(
+                                    self.main_script_path
+                                ).values()
+                            },
                         },
                     ),
-                    (make_url_path_regex(base, trailing_slash=False), AddSlashHandler),
+                    (
+                        make_url_path_regex(base, trailing_slash=False),
+                        AddSlashHandler,
+                    ),
                 ]
             )
 

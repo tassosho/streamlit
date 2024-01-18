@@ -27,7 +27,7 @@ def server_option_changed(
     """Return True if and only if an option in the server section differs
     between old_options and new_options.
     """
-    for opt_name in old_options.keys():
+    for opt_name in old_options:
         if not opt_name.startswith("server"):
             continue
 
@@ -55,10 +55,10 @@ def show_config(
     )
 
     def append_desc(text):
-        out.append("# " + click.style(text, bold=True))
+        out.append(f"# {click.style(text, bold=True)}")
 
     def append_comment(text):
-        out.append("# " + click.style(text))
+        out.append(f"# {click.style(text)}")
 
     def append_section(text):
         out.append(click.style(text, bold=True, fg="green"))
@@ -80,11 +80,11 @@ def show_config(
         }
 
         # Only show config header if section is non-empty.
-        if len(section_options) == 0:
+        if not section_options:
             continue
 
         out.append("")
-        append_section("[%s]" % section)
+        append_section(f"[{section}]")
         out.append("")
 
         for key, option in section_options.items():
@@ -121,19 +121,13 @@ def show_config(
                 # Ensure a line break before appending "Default" comment, if not already there
                 if out[-1] != "":
                     out.append("")
-                append_comment("Default: %s" % toml_default)
-            else:
-                # Don't say "Default: (unset)" here because this branch applies
-                # to complex config settings too.
-                pass
-
+                append_comment(f"Default: {toml_default}")
             if option.deprecated:
                 append_comment(click.style("DEPRECATED.", fg="yellow"))
                 for line in _clean_paragraphs(option.deprecation_text):
                     append_comment(line)
                 append_comment(
-                    "This option will be removed on or after %s."
-                    % option.expiration_date
+                    f"This option will be removed on or after {option.expiration_date}."
                 )
 
             option_is_manually_set = (
@@ -141,7 +135,7 @@ def show_config(
             )
 
             if option_is_manually_set:
-                append_comment("The value below was set in %s" % option.where_defined)
+                append_comment(f"The value below was set in {option.where_defined}")
 
             toml_setting = toml.dumps({key: option.value})
 
@@ -168,8 +162,7 @@ def _clean_paragraphs(txt):
     # Strip both leading and trailing newlines.
     txt = txt.strip("\n")
     paragraphs = txt.split("\n\n")
-    cleaned_paragraphs = [
+    return [
         "\n".join(_clean(line) for line in paragraph.split("\n"))
         for paragraph in paragraphs
     ]
-    return cleaned_paragraphs

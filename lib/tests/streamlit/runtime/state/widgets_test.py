@@ -434,10 +434,7 @@ class ComputeWidgetIdTests(DeltaGeneratorTestCase):
             widget_func("my_widget", options, disabled=True)
 
     def test_widget_id_computation_data_editor(self):
-        with patch(
-            f"streamlit.elements.widgets.data_editor.compute_widget_id",
-            wraps=compute_widget_id,
-        ) as patched_compute_widget_id:
+        with patch("streamlit.elements.widgets.data_editor.compute_widget_id", wraps=compute_widget_id) as patched_compute_widget_id:
             st.data_editor(data=[])
 
         sig = inspect.signature(st.data_editor)
@@ -486,4 +483,4 @@ class WidgetUserKeyTests(DeltaGeneratorTestCase):
 
         k = list(state._keys())[0]
         # Incorrectly inidcates no user key
-        assert user_key_from_widget_id(k) == None
+        assert user_key_from_widget_id(k) is None
